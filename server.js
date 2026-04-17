@@ -11,7 +11,10 @@ const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 if (MONGO_URI) {
   mongoose.connect(MONGO_URI)
-    .then(() => console.log("Connected to MongoDB Atlas"))
+    .then(() => {
+      console.log("Connected to MongoDB Atlas");
+      syncSubmissionCount();
+    })
     .catch(err => console.error("Could not connect to MongoDB Atlas", err));
 } else {
   console.warn("MONGO_URI not found. Data will not be persisted to MongoDB.");
@@ -31,10 +34,20 @@ const students = []; // Temporary fallback or for legacy ref
 
 client.collectDefaultMetrics();
 
-const studentSubmissionCounter = new client.Counter({
+const studentSubmissionCounter = new client.Gauge({
   name: "student_submissions_total",
   help: "Total number of student submissions"
 });
+
+async function syncSubmissionCount() {
+  try {
+    const count = await Student.countDocuments();
+    studentSubmissionCounter.set(count);
+    console.log(`Synced total submissions from MongoDB: ${count}`);
+  } catch (error) {
+    console.error("Error syncing submission count:", error);
+  }
+}
 
 const submissionDuration = new client.Histogram({
   name: "student_submission_duration_seconds",
