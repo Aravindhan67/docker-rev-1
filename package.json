@@ -1,0 +1,15 @@
+{
+  "name": "student-result-monitoring-system",
+  "version": "1.0.0",
+  "description": "Student Result Monitoring System with Docker, Prometheus, and Grafana",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "mongoose": "^9.4.1",
+    "prom-client": "^15.1.3"
+  }
+}

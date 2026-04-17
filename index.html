@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Result Monitoring System</title>
+    <link rel="stylesheet" href="public/style.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <div class="hero">
+          <p class="eyebrow">DevOps Monitoring Demo</p>
+          <h1>Student Result Monitoring System</h1>
+          <p class="subtitle">
+            Submit student marks and watch CPU, memory, and load trends in Grafana.
+          </p>
+        </div>
+
+        <form id="studentForm" class="form">
+          <label>
+            <span>Student Name</span>
+            <input type="text" name="name" placeholder="Enter student name" required />
+          </label>
+
+          <label>
+            <span>Roll Number</span>
+            <input type="text" name="rollNumber" placeholder="Enter roll number" required />
+          </label>
+
+          <label>
+            <span>Marks</span>
+            <input
+              type="number"
+              name="marks"
+              placeholder="Enter marks"
+              min="0"
+              max="100"
+              required
+            />
+          </label>
+
+          <button type="submit">Submit Result</button>
+        </form>
+
+        <div id="message" class="message" aria-live="polite"></div>
+
+        <section class="results">
+          <div class="results-header">
+            <h2>Recent Submissions</h2>
+            <button id="refreshButton" type="button" class="secondary">Refresh</button>
+          </div>
+          <div id="resultsList" class="results-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="public/script.js"></script>
+  </body>
+  </html>
