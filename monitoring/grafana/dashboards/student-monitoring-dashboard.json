@@ -123,7 +123,7 @@
     {
       "id": 6,
       "type": "stat",
-      "title": "🌐 Active HTTP Requests",
+      "title": "🌐 Active HTTP Connections",
       "gridPos": { "h": 4, "w": 4, "x": 20, "y": 2 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
@@ -135,7 +135,7 @@
         "overrides": []
       },
       "options": { "colorMode": "background", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "expr": "nodejs_active_requests_total", "legendFormat": "Active Requests", "refId": "A" }]
+      "targets": [{ "expr": "http_active_connections", "legendFormat": "Active Connections", "refId": "A" }]
     },
 
     {

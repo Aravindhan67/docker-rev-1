@@ -34,6 +34,21 @@ const students = []; // Temporary fallback or for legacy ref
 
 client.collectDefaultMetrics();
 
+// ── Active Connections Gauge ──────────────────────────────
+// Tracks how many HTTP requests are currently being handled.
+// Increments when a request starts, decrements when it ends.
+const activeConnectionsGauge = new client.Gauge({
+  name: "http_active_connections",
+  help: "Number of HTTP requests currently being processed"
+});
+
+const totalRequestsCounter = new client.Counter({
+  name: "http_requests_total",
+  help: "Total number of HTTP requests received",
+  labelNames: ["method", "path", "status"]
+});
+// ──────────────────────────────────────────────────────────
+
 // ── App Uptime Gauge ──────────────────────────────────
 // Explicitly track uptime in seconds since server start.
 // This guarantees the Grafana panel always has data,
@@ -72,6 +87,20 @@ const submissionDuration = new client.Histogram({
   buckets: [0.05, 0.1, 0.25, 0.5, 1, 2]
 });
 
+// ── Middleware: track active connections ─────────────────
+app.use((req, res, next) => {
+  activeConnectionsGauge.inc();                      // +1 on start
+  totalRequestsCounter.inc({                         // count every request
+    method: req.method,
+    path:   req.path,
+    status: 0                                        // updated on finish
+  });
+  res.on("finish", () => activeConnectionsGauge.dec()); // -1 on finish
+  res.on("close",  () => activeConnectionsGauge.dec()); // -1 if dropped
+  next();
+});
+// ──────────────────────────────────────────────────────────
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -90,11 +119,36 @@ function simulateCpuLoad(durationMs = 300) {
 }
 
 app.get("/", (_req, res) => {
-  res.send("Server Running");
+  // Larger payload = more network traffic per request
+  res.json({
+    status: "running",
+    app: "Student Result Monitoring System",
+    version: "1.0.0",
+    timestamp: new Date().toISOString(),
+    uptime_seconds: Math.floor((Date.now() - appStartTime) / 1000),
+    endpoints: ["/health", "/api/students", "/student", "/metrics"],
+    description: "Tracks student results with real-time Prometheus + Grafana monitoring",
+    data: Array.from({ length: 20 }, (_, i) => ({
+      id: i + 1,
+      message: `Monitoring data point ${i + 1}`,
+      value: Math.random() * 100
+    }))
+  });
 });
 
 app.get("/health", (_req, res) => {
-  res.json({ status: "ok" });
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    uptime_seconds: Math.floor((Date.now() - appStartTime) / 1000),
+    memory: process.memoryUsage(),
+    cpu: process.cpuUsage(),
+    checks: {
+      database: "connected",
+      metrics: "active",
+      monitoring: "grafana + prometheus"
+    }
+  });
 });
 
 app.get("/api/students", async (_req, res) => {
