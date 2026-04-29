@@ -34,6 +34,23 @@ const students = []; // Temporary fallback or for legacy ref
 
 client.collectDefaultMetrics();
 
+// ── App Uptime Gauge ──────────────────────────────────
+// Explicitly track uptime in seconds since server start.
+// This guarantees the Grafana panel always has data,
+// regardless of prom-client version or metric naming.
+const appStartTime = Date.now();
+
+const appUptimeGauge = new client.Gauge({
+  name: "app_uptime_seconds",
+  help: "Number of seconds the application has been running"
+});
+
+// Update every second
+setInterval(() => {
+  appUptimeGauge.set((Date.now() - appStartTime) / 1000);
+}, 1000);
+// ──────────────────────────────────────────────────────
+
 const studentSubmissionCounter = new client.Gauge({
   name: "student_submissions_total",
   help: "Total number of student submissions"

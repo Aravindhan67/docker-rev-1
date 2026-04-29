@@ -115,9 +115,10 @@
         },
         "overrides": []
       },
-      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "expr": "process_uptime_seconds", "legendFormat": "Uptime", "refId": "A" }]
+      "options": { "colorMode": "background", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "app_uptime_seconds", "legendFormat": "Uptime", "refId": "A" }]
     },
+
 
     {
       "id": 6,
