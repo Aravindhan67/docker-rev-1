@@ -90,13 +90,25 @@ const submissionDuration = new client.Histogram({
 // ── Middleware: track active connections ─────────────────
 app.use((req, res, next) => {
   activeConnectionsGauge.inc();                      // +1 on start
-  totalRequestsCounter.inc({                         // count every request
+  totalRequestsCounter.inc({
     method: req.method,
     path:   req.path,
-    status: 0                                        // updated on finish
+    status: 0
   });
-  res.on("finish", () => activeConnectionsGauge.dec()); // -1 on finish
-  res.on("close",  () => activeConnectionsGauge.dec()); // -1 if dropped
+
+  // ✅ Use a flag so we only decrement ONCE
+  // Both 'finish' and 'close' can fire — without the flag
+  // the gauge decrements twice and goes negative.
+  let done = false;
+  const dec = () => {
+    if (!done) {
+      done = true;
+      activeConnectionsGauge.dec();                  // -1 only once
+    }
+  };
+
+  res.on("finish", dec);   // normal request end
+  res.on("close",  dec);   // client disconnected early
   next();
 });
 // ──────────────────────────────────────────────────────────
